@@ -16,40 +16,38 @@ import busquedas
 #  Desarrolla el modelo del Camión mágico
 # ------------------------------------------------------------
 
-class CamionMagico.busquedas.ModeloBusqueda):
-     """
-    ---------------------------------------------------------------------------------
-     Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
-     la posicion discreta $N$ en una vía recta usando un camión mágico. 
-    
-     Puedo trasladarme de dos maneras:
-      1. A pie, desde el punto $x$ hasta el punto $x + 1$ en un tiempo de 1 minuto.
-      2. Usando un camión mágico, desde el punto $x$ hasta el punto $2x$ con un tiempo 
-         de 2 minutos.
-
-     Desarrollar la clase del modelo del camión mágico
-    ----------------------------------------------------------------------------------
-    
-    """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+class CamionMagico(busquedas.ModeloBusqueda):
+    def __init__(self,n):
+        self.n = n
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        acciones=[]
+
+        if estado + 1 <= self.n: 
+            acciones.append("caminar")
+        if 2 * estado <= self.n: 
+            acciones.append("camion")
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == 'caminar':
+            return estado + 1
+        elif accion == 'camion':
+            return 2 * estado
+        else:
+            raise ValueError("Accion inválida, es caminar o camión")
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == 'caminar':
+            return 1
+        elif accion == 'camion':
+            return 2
+        else:
+            raise ValueError("Accion inválida")
 
     @staticmethod
     def bonito(estado):
-        """
-        El prettyprint de un estado dado
-
-        """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return f"Estado: {estado}"
  
 # ------------------------------------------------------------
 #  Desarrolla el problema del Camión mágico
