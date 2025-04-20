@@ -54,47 +54,59 @@ class CamionMagico(busquedas.ModeloBusqueda):
 # ------------------------------------------------------------
 
 class PblCamionMágico(busquedas.ProblemaBusqueda):
-    """
-    El problema a resolver es establecer un plan para ir desde el 
-    punto $1$ hasta el punto $N$ en el menor tiempo posible.
-
-    """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-    
+    def __init__(self,n):
+       super().__init__(1, lambda estado: estado == n, CamionMagico(n))
+       self.n = n
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
+# ------------------------------------------------------------
+#   1 Tennis
+#   Heurística; El único movimiento posible es caminar(costo 1) 
+#   Justificación: Nunca va a ser mayor que el costo real porque en el 
+#   peor de los casos solo se puede caminar y como el camion(costo 2) cuesta más ,
+#   caminar siempre sera el minimo costo posible
+#   °Es admisible por que no sobreestima el costo real
+#   °Es simple
+#    Para llamarla = h_1_camion_magico(nodo, problema.n) porque tuve problemas
+#    con el problema.n 
+#  ------------------------------------------------------------
 
-def h_1_camion_magico(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
-    """
-    return 0
-
+def h_1_camion_magico(nodo,meta):
+    return max(0,meta - nodo.estado)
 
 # ------------------------------------------------------------
-#  Desarrolla otra política admisible.
-#  Analiza y di porque piensas que es (o no es) dominante una
-#  respecto otra política
-# ------------------------------------------------------------
+#   2 Llantas
+#   Heurística; Usar lo más posible el camión
+#   Justificación: Como se prefiere utilizar el camión el estado actual va a ir duplicandose
+#   hasta que se acerque lo suficiente a la menta y ya no pueda utilizarse el camión, se caminara
+#   recordando que el cosrto del caminón (2) y el de caminar(1) el costo será una estimación de estos dos
+#   °Es admisible porque no sobreestima el costo real
+#   °Explora menos nodos
+#  ------------------------------------------------------------
 
 def h_2_camion_magico(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    actual = nodo.estado
+    meta = nodo.problema.n if hasattr(nodo, "problema") else 20 
 
-    """
-    return 0
+    if actual >= meta:
+        return 0
+
+    km= 0
+    pos = actual
+    while pos * 2 <= meta:
+        pos *= 2
+        km += 1
+
+    falta = max(0, meta - pos)
+    return km * 2 + falta
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
 # ------------------------------------------------------------
 
-class CuboRubik.busquedas.ModeloBusqueda):
+class CuboRubik(busquedas.ModeloBusqueda):
     """
     La clase para el modelo de cubo de rubik, documentación, no olvides poner
     la documentación de forma clara y concisa.
