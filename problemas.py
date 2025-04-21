@@ -13,7 +13,7 @@ import busquedas
 
 
 # ------------------------------------------------------------
-#  Desarrolla el modelo del Camión mágico
+#  Modelo del Camión mágico
 # ------------------------------------------------------------
 
 class CamionMagico(busquedas.ModeloBusqueda):
@@ -50,7 +50,7 @@ class CamionMagico(busquedas.ModeloBusqueda):
         return f"Estado: {estado}"
  
 # ------------------------------------------------------------
-#  Desarrolla el problema del Camión mágico
+#  Problema del Camión mágico
 # ------------------------------------------------------------
 
 class PblCamionMágico(busquedas.ProblemaBusqueda):
@@ -59,7 +59,7 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
        self.n = n
 
 # ------------------------------------------------------------
-#  Desarrolla una política admisible.
+#  Políticas admisibles: 
 # ------------------------------------------------------------
 # ------------------------------------------------------------
 #   1 Tennis
@@ -103,28 +103,171 @@ def h_2_camion_magico(nodo):
     return km * 2 + falta
 
 # ------------------------------------------------------------
-#  Desarrolla el modelo del cubo de Rubik
+#  Modelo Cubo Rubik
 # ------------------------------------------------------------
+# ------------------------------------------------------------
+#   Un cubo Rubik tiene 6 caras donde cada cara tiene 9 cuadrados del mismo color
+#   1 blanco(b), 2 rojo(r), 3 verde(v), 4 naranja(n),  5 azul(a) y 6 amarillo(m)
+#         ┌───────┐
+#         │ r r r │
+#         │ r r r │
+#         │ r r r │
+# ┌───────┬───────┬───────┬───────┐
+# │ b b b │ v v v │ a a a │ m m m │
+# │ b b b │ v v v │ a a a │ m m m │
+# │ b b b │ v v v │ a a a │ m m m │
+# └───────┴───────┴───────┴───────┘
+#         │ n n n │
+#         │ n n n │
+#         │ n n n │
+#         └───────┘
+#   
+#             ┌──────────┐
+#             │ r0 r1 r2 │
+#             │ r3 r4 r5 │
+#             │ r6 r7 r8 │
+# ┌──────────┬──────────┬──────────┬──────────┐
+# │ b0 b1 b2 │ v0 v1 v2 │ a0 a1 a2 │ m0 m1 m2 │
+# │ b3 b4 b5 │ v3 v4 v5 │ a3 a4 a5 │ m3 m4 m5 │
+# │ b6 b7 b8 │ v6 v7 v8 │ a6 a7 a8 │ m6 m7 m8 │
+# └──────────┴──────────┴──────────┴──────────┘
+#            │ n0 n1 n2 │
+#            │ n3 n4 n5 │
+#            │ n6 n7 n8 │
+#            └──────────┘
+#   Cuadrado de cada cara: normal
+#         ┌───────┐
+#         │ 0 1 2 │
+#         │ 3 4 5 │
+#         │ 6 7 8 │
+#         └───────┘
+#   Cuadrado de cada cara: un giro a la izquierda
+#         ┌───────┐
+#         │ 6 3 0 │
+#         │ 7 4 1 │
+#         │ 8 5 2 │
+#         └───────┘
+#   Cuadrado de cada cara: un giro a la derecha
+#         ┌───────┐
+#         │ 2 5 8 │
+#         │ 1 4 7 │
+#         │ 0 3 6 │
+#         └───────┘
+#  ------------------------------------------------------------
 
 class CuboRubik(busquedas.ModeloBusqueda):
-    """
-    La clase para el modelo de cubo de rubik, documentación, no olvides poner
-    la documentación de forma clara y concisa.
-    
-    https://en.wikipedia.org/wiki/Rubik%27s_Cube
-    
-    """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self,estado_inicial):
+        self.estado = estado_inicial
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Donde < es giro a la izquierda/horario
+        # y > es giro a la derecha/ antihorario
+        return ['<B','B>','<R','R>','<V','V>','<N','N>','<A','A>','<M','M>',]
 
+    def giro_izq(c):
+        return [c[6], c[3], c[0],
+                c[7], c[4], c[1],
+                c[8], c[5], c[2]]
+    def giro_der(c):
+        return [c[2], c[5], c[8],                   
+                c[1], c[4], c[7],
+                c[0], c[3], c[6]]    
+        
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        nuevo = {c: estado[c].copy() for c in estado}
+        c = accion[1]
+
+        if c == '<V':
+# giro <V:
+#             ┌──────────┐
+#             │ r0 r1 r2 │
+#             │ r3 r4 r5 │
+#             │ b8 b5 b2 │
+# ┌──────────┬──────────┬──────────┬──────────┐
+# │ b0 b1 n0 │ v0 v1 v2 │ r6 a1 a2 │ m0 m1 m2 │
+# │ b3 b4 n1 │ v3 v4 v5 │ r7 a4 a5 │ m3 m4 m5 │
+# │ b6 b7 n2 │ v6 v7 v8 │ r8 a7 a8 │ m6 m7 m8 │
+# └──────────┴──────────┴──────────┴──────────┘
+#            │ a6 a3 a0 │
+#            │ n3 n4 n5 │
+#            │ n6 n7 n8 │
+#            └──────────┘
+            nuevo[c] = self.giro_izq(estado[c])
+            temp= estado['R'][6:9]
+            nuevo['R'][6:9]=estado['B'][8:1:-3] # tambien puede ser [2::3][::-1]
+            nuevo['B'][2::3]=estado['N'][0:3]
+            nuevo['N'][0:3]=estado['A'][0::3]
+            nuevo['A'][0::3]=temp
+
+
+        elif c == 'V>':
+# giro V>:
+#             ┌──────────┐
+#             │ r0 r1 r2 │
+#             │ r3 r4 r5 │
+#             │ a0 a3 a6 │
+# ┌──────────┬──────────┬──────────┬──────────┐
+# │ b0 b1 r8 │ v0 v1 v2 │ n2 a1 a2 │ m0 m1 m2 │
+# │ b3 b4 r7 │ v3 v4 v5 │ n1 a4 a5 │ m3 m4 m5 │
+# │ b6 b7 r6 │ v6 v7 v8 │ n0 a7 a8 │ m6 m7 m8 │
+# └──────────┴──────────┴──────────┴──────────┘
+#            │ b2 b5 b8 │
+#            │ n3 n4 n5 │
+#            │ n6 n7 n8 │
+#            └──────────┘
+            nuevo[c] = self.giro_der(estado[c])
+            temp= estado['R'][6:9]
+            nuevo['R'][6:9]=estado['A'][0::3]
+            nuevo['A'][0::3]=estado['N'][0:3][::-1]
+            nuevo['N'][0:3]=estado['B'][2::3]
+            nuevo['B'][2::3]=temp [::-1]
+
+        elif c == '<B':
+#    giro <B:
+#             ┌──────────┐
+#             │ r2 r5 r8 │
+#             │ r1 r4 r7 │
+#             │ m8 m5 m2 │
+# ┌──────────┬──────────┬──────────┬──────────┐
+# │ m0 m1 n6 │ b0 b1 b2 │ r0 v1 v2 │ a0 a1 a2 │
+# │ m3 m4 n3 │ b3 b4 b5 │ r3 v4 v5 │ a3 a4 a5 │
+# │ m6 m7 n0 │ b6 b7 b8 │ r6 v7 v8 │ a6 a7 a8 │
+# └──────────┴──────────┴──────────┴──────────┘
+#            │ v6 v3 v0 │
+#            │ n7 n4 n1 │
+#            │ n8 n5 n2 │
+#            └──────────┘
+            nuevo[c] = self.giro_izq(estado[c])
+            temp= estado['R'][0::3]
+            nuevo['R'][0::3]=estado['M'][2::3][::-1]
+            nuevo['M'][2::3]=estado['N'][0::3][::-1]
+            nuevo['N'][0::3][::-1]=estado['V'][0::3][::-1]
+            nuevo['V'][0::3]=temp
+
+        elif c == 'B>':
+# giro B>:
+#             ┌──────────┐
+#             │ r2 r5 r8 │
+#             │ r1 r4 r7 │
+#             │ v0 v3 v6 │
+# ┌──────────┬──────────┬──────────┬──────────┐
+# │ m0 m1 r6 │ b0 b1 b2 │ n0 v1 v2 │ a0 a1 a2 │
+# │ m3 m4 r3 │ b3 b4 b5 │ n3 v4 v5 │ a3 a4 a5 │
+# │ m6 m7 r0 │ b6 b7 b8 │ n6 v7 v8 │ a6 a7 a8 │
+# └──────────┴──────────┴──────────┴──────────┘
+#            │ m2 m5 m8 │
+#            │ n7 n4 n1 │
+#            │ n8 n5 n2 │
+#            └──────────┘
+            nuevo[c] = self.giro_der(estado[c])
+            temp= estado['R'][0::3]
+            nuevo['R'][6:9]=estado['V'][0::3]
+            nuevo['V'][0::3]=estado['N'][0:3]
+            nuevo['N'][0::3][::-1]=estado['B'][2::3]
+            nuevo['M'][2::3]=temp [::-1]
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
